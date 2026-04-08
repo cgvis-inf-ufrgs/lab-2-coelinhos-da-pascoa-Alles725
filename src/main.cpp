@@ -438,9 +438,23 @@ int main(int argc, char* argv[])
             // O valor 1.570796f é aproximadamente PI/2 (90 graus).
             float offset_orientacao = -1.570796f; 
 
-            // Transladamos, Rodamos e Escalamos (a leitura conceptual é feita da direita para a esquerda: Escala -> Rotação -> Translação)
+            // Criamos uma matriz de identidade como padrão (sem rotação extra)
+            glm::mat4 matriz_cambalhota = Matrix_Identity();
+            
+            // A cada 4 coelhos (índices 3, 7, 11 e 15), aplicamos a rotação contínua
+            if (i % 4 == 3)
+            {
+                // Ajuste este valor para deixar o giro mais rápido ou mais lento
+                float velocidade_giro = 2.0f; 
+                
+                // Rotacionamos em torno do eixo Z local para um flip mortal.
+                matriz_cambalhota = Matrix_Rotate_Z(time * velocidade_giro);
+            }
+
+            // Aplicamos as matrizes: Translação -> Rotação do Caminho -> Cambalhota (Local) -> Escala
             model = Matrix_Translate(x, y, z) 
                   * Matrix_Rotate_Y(-angulo_animado + offset_orientacao) 
+                  * matriz_cambalhota 
                   * Matrix_Scale(escala, escala, escala);
             
             // Enviamos a matriz Model final e desenhamos
