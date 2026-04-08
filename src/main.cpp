@@ -323,6 +323,9 @@ int main(int argc, char* argv[])
     {
         // Aqui executamos as operações de renderização
 
+        // Recuperamos o tempo decorrido desde o início do programa para animar os objetos
+        float time = (float)glfwGetTime();
+
         // Definimos a cor do "fundo" do framebuffer como branco.  Tal cor é
         // definida como coeficientes RGBA: Red, Green, Blue, Alpha; isto é:
         // Vermelho, Verde, Azul, Alpha (valor de transparência).
@@ -406,11 +409,35 @@ int main(int argc, char* argv[])
         glUniform1i(g_object_id_uniform, SPHERE);
         DrawVirtualObject("the_sphere");
 
-        // Desenhamos o modelo do coelho
-        model = Matrix_Translate(1.0f,0.0f,0.0f);
+        // Desenhamos 16 instâncias do modelo do coelho em um círculo
+        for (int i = 0; i < 16; ++i)
+        {
+            // Ângulo base do coelho distribuído uniformemente pela circunferência (2*PI / 16)
+            float angulo_base = (i * 2.0f * 3.141592f) / 16.0f;
+
+            // Diminuímos o tempo para fazer o sistema inteiro girar no sentido anti-horário.
+            // O multiplicador 0.5f ajusta a velocidade do movimento orbital.
+            float angulo_animado = angulo_base - (time * 0.5f);
+
+            float raio = 2.0f; // Definimos um raio grande o suficiente para caberem todos os coelhos
+            
+            // Calculamos as posições usando trigonometria
+            float x = cos(angulo_animado) * raio;
+            float z = sin(angulo_animado) * raio;
+
+            z = z - 1.0f;
+
+            float escala = 0.25f; // Definimos uma escala para os coelhos, para que caibam melhor na cena
+
+            // Transladamos o coelho para a posição (x, 0.0, z)
+            model = Matrix_Translate(x, 0.0f, z);
+            model = model * Matrix_Scale(escala, escala, escala);
+            
+            // Enviamos a matriz Model final e desenhamos
         glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
         glUniform1i(g_object_id_uniform, BUNNY);
         DrawVirtualObject("the_bunny");
+        }
 
         // Desenhamos o plano do chão
         model = Matrix_Translate(0.0f,-1.0f,0.0f) * Matrix_Scale(4.0f,1.0f,4.0f);
