@@ -434,9 +434,14 @@ int main(int argc, char* argv[])
 
             float escala = 0.25f; // Definimos uma escala para os coelhos, para que caibam melhor na cena
 
-            // Transladamos o coelho para a posição (x, y, z)
-            model = Matrix_Translate(x, y, z);
-            model = model * Matrix_Scale(escala, escala, escala);
+            // Para o coelho olhar para a frente (tangente ao movimento), rodamos no eixo Y.
+            // O valor 1.570796f é aproximadamente PI/2 (90 graus).
+            float offset_orientacao = -1.570796f; 
+
+            // Transladamos, Rodamos e Escalamos (a leitura conceptual é feita da direita para a esquerda: Escala -> Rotação -> Translação)
+            model = Matrix_Translate(x, y, z) 
+                  * Matrix_Rotate_Y(-angulo_animado + offset_orientacao) 
+                  * Matrix_Scale(escala, escala, escala);
             
             // Enviamos a matriz Model final e desenhamos
         glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
