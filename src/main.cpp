@@ -427,10 +427,15 @@ int main(int argc, char* argv[])
 
             z = z - 1.0f;
 
+            // A altura Y varia com o seno do ângulo atual no espaço.
+            // Multiplicar o ângulo por 4.0f gera exatamente 4 "ondas" completas ao redor do círculo de 2*PI.
+            float amplitude = 0.5f; 
+            float y = sin(angulo_animado * 4.0f) * amplitude;
+
             float escala = 0.25f; // Definimos uma escala para os coelhos, para que caibam melhor na cena
 
-            // Transladamos o coelho para a posição (x, 0.0, z)
-            model = Matrix_Translate(x, 0.0f, z);
+            // Transladamos o coelho para a posição (x, y, z)
+            model = Matrix_Translate(x, y, z);
             model = model * Matrix_Scale(escala, escala, escala);
             
             // Enviamos a matriz Model final e desenhamos
