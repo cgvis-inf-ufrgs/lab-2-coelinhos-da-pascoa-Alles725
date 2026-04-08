@@ -404,10 +404,12 @@ int main(int argc, char* argv[])
         #define PLANE  2
 
         // Desenhamos o modelo da esfera
+        /*
         model = Matrix_Translate(-1.0f,0.0f,0.0f);
         glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
         glUniform1i(g_object_id_uniform, SPHERE);
         DrawVirtualObject("the_sphere");
+        */
 
         // Desenhamos 16 instâncias do modelo do coelho em um círculo
         for (int i = 0; i < 16; ++i)
@@ -419,20 +421,18 @@ int main(int argc, char* argv[])
             // O multiplicador 0.5f ajusta a velocidade do movimento orbital.
             float angulo_animado = angulo_base - (time * 0.5f);
 
-            float raio = 2.0f; // Definimos um raio grande o suficiente para caberem todos os coelhos
+            float raio = 1.6f; // Definimos um raio grande o suficiente para caberem todos os coelhos
             
             // Calculamos as posições usando trigonometria
             float x = cos(angulo_animado) * raio;
             float z = sin(angulo_animado) * raio;
 
-            z = z - 1.0f;
-
             // A altura Y varia com o seno do ângulo atual no espaço.
             // Multiplicar o ângulo por 4.0f gera exatamente 4 "ondas" completas ao redor do círculo de 2*PI.
-            float amplitude = 0.5f; 
+            float amplitude = 0.52f; 
             float y = sin(angulo_animado * 4.0f) * amplitude;
 
-            float escala = 0.25f; // Definimos uma escala para os coelhos, para que caibam melhor na cena
+            float escala = 0.2f; // Definimos uma escala para os coelhos, para que caibam melhor na cena
 
             // Para o coelho olhar para a frente (tangente ao movimento), rodamos no eixo Y.
             // O valor 1.570796f é aproximadamente PI/2 (90 graus).
@@ -461,6 +461,52 @@ int main(int argc, char* argv[])
         glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
         glUniform1i(g_object_id_uniform, BUNNY);
         DrawVirtualObject("the_bunny");
+
+            // Para que os ovos NÃO herdem a cambalhota, mas HERDEM a orientação do caminho do coelho,
+            // incluímos a rotação do caminho na nossa base limpa, mas ignoramos a matriz_cambalhota.
+            model = Matrix_Translate(x, y, z) 
+                  * Matrix_Rotate_Y(-angulo_animado + offset_orientacao)
+                  * Matrix_Scale(escala, escala, escala);
+
+            float raio_orbita = 1.0f; 
+            float velocidade_orbita = 2.0f; 
+            
+            // --- OVO 1 ---
+            PushMatrix(model); // Salva a matriz base limpa na pilha
+            
+            float angulo_orbita_1 = time * velocidade_orbita;
+            
+            // 1. Matrix_Rotate_X(angulo_orbita_1): Gira o eixo de órbita em torno do coelho.
+            // 2. Matrix_Translate(Y): Afasta o ovo do centro.
+            // 3. Matrix_Rotate_X(-angulo_orbita_1): Desfaz o giro NO PRÓPRIO OVO, mantendo-o sempre "em pé".
+            model = model * Matrix_Rotate_X(-angulo_orbita_1)
+                          * Matrix_Translate(0.0f, raio_orbita, 0.0f)
+                          * Matrix_Rotate_X(angulo_orbita_1)
+                          * Matrix_Scale(0.25f, 0.4f, 0.25f);
+            
+            glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+            glUniform1i(g_object_id_uniform, SPHERE);
+            DrawVirtualObject("the_sphere");
+            
+            PopMatrix(model); // Restaura a variável 'model' para a base limpa
+
+            // --- OVO 2 ---
+            PushMatrix(model); // Salva novamente a base limpa
+            
+            // Defasamos a órbita em 180 graus (PI radianos) somando + 3.141592f ao ângulo
+            float angulo_orbita_2 = (time * velocidade_orbita) + 3.141592f;
+            
+            // Aplicamos a mesma lógica de Roda Gigante para o Ovo 2
+            model = model * Matrix_Rotate_X(-angulo_orbita_2)
+                          * Matrix_Translate(0.0f, raio_orbita, 0.0f)
+                          * Matrix_Rotate_X(angulo_orbita_2)
+                          * Matrix_Scale(0.25f, 0.4f, 0.25f);
+            
+            glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+            glUniform1i(g_object_id_uniform, SPHERE);
+            DrawVirtualObject("the_sphere");
+            
+            PopMatrix(model); // Fim da hierarquia
         }
 
         // Desenhamos o plano do chão
