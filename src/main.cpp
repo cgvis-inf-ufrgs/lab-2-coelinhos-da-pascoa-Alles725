@@ -194,6 +194,18 @@ float g_CameraTheta = 0.0f; // Ângulo no plano ZX em relação ao eixo Z
 float g_CameraPhi = 0.3f;   // Ângulo em relação ao eixo Y
 float g_CameraDistance = 3.5f; // Distância da câmera para a origem
 
+// Parâmetros ajustáveis para a animação dos coelhos e ovos.
+const float g_AnimationStep = 0.01f;
+const float g_MinAnimationValue = 0.01f;
+float g_BunnyOrbitRadius = 1.59f;
+float g_BunnyScale = 0.21f;
+float g_SineAmplitude = 0.52f;
+float g_EggOrbitRadius = 1.1f;
+float g_EggScaleX = 0.31f;
+float g_EggScaleY = 0.48f;
+float g_EggScaleZ = 0.34f;
+float g_EggOrbitPhaseOffset = 2.14f;
+
 // Variáveis que controlam rotação do antebraço
 float g_ForearmAngleZ = 0.0f;
 float g_ForearmAngleX = 0.0f;
@@ -421,7 +433,7 @@ int main(int argc, char* argv[])
             // O multiplicador 0.5f ajusta a velocidade do movimento orbital.
             float angulo_animado = angulo_base - (time * 0.5f);
 
-            float raio = 1.6f; // Definimos um raio grande o suficiente para caberem todos os coelhos
+            float raio = g_BunnyOrbitRadius; // Raio da órbita dos coelhos
             
             // Calculamos as posições usando trigonometria
             float x = cos(angulo_animado) * raio;
@@ -429,10 +441,10 @@ int main(int argc, char* argv[])
 
             // A altura Y varia com o seno do ângulo atual no espaço.
             // Multiplicar o ângulo por 4.0f gera exatamente 4 "ondas" completas ao redor do círculo de 2*PI.
-            float amplitude = 0.52f; 
+            float amplitude = g_SineAmplitude;
             float y = sin(angulo_animado * 4.0f) * amplitude;
 
-            float escala = 0.2f; // Definimos uma escala para os coelhos, para que caibam melhor na cena
+            float escala = g_BunnyScale; // Escala dos coelhos
 
             // Para o coelho olhar para a frente (tangente ao movimento), rodamos no eixo Y.
             // O valor 1.570796f é aproximadamente PI/2 (90 graus).
@@ -444,7 +456,6 @@ int main(int argc, char* argv[])
             // A cada 4 coelhos (índices 3, 7, 11 e 15), aplicamos a rotação contínua
             if (i % 4 == 3)
             {
-                // Ajuste este valor para deixar o giro mais rápido ou mais lento
                 float velocidade_giro = 2.0f; 
                 
                 // Rotacionamos em torno do eixo Z local para um flip mortal.
@@ -468,21 +479,21 @@ int main(int argc, char* argv[])
                   * Matrix_Rotate_Y(-angulo_animado + offset_orientacao)
                   * Matrix_Scale(escala, escala, escala);
 
-            float raio_orbita = 1.0f; 
+            float raio_orbita = g_EggOrbitRadius; 
             float velocidade_orbita = 2.0f; 
             
             // --- OVO 1 ---
             PushMatrix(model); // Salva a matriz base limpa na pilha
             
-            float angulo_orbita_1 = time * velocidade_orbita;
+            float angulo_orbita_1 = (time * velocidade_orbita) + g_EggOrbitPhaseOffset;
             
-            // 1. Matrix_Rotate_X(angulo_orbita_1): Gira o eixo de órbita em torno do coelho.
+            // 1. Matrix_Rotate_X(-angulo_orbita_1): Gira o eixo de órbita em torno do coelho.
             // 2. Matrix_Translate(Y): Afasta o ovo do centro.
-            // 3. Matrix_Rotate_X(-angulo_orbita_1): Desfaz o giro NO PRÓPRIO OVO, mantendo-o sempre "em pé".
+            // 3. Matrix_Rotate_X(angulo_orbita_1): Desfaz o giro NO PRÓPRIO OVO, mantendo-o sempre "em pé".
             model = model * Matrix_Rotate_X(-angulo_orbita_1)
                           * Matrix_Translate(0.0f, raio_orbita, 0.0f)
                           * Matrix_Rotate_X(angulo_orbita_1)
-                          * Matrix_Scale(0.25f, 0.4f, 0.25f);
+                          * Matrix_Scale(g_EggScaleX, g_EggScaleY, g_EggScaleZ);
             
             glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
             glUniform1i(g_object_id_uniform, SPHERE);
@@ -494,13 +505,13 @@ int main(int argc, char* argv[])
             PushMatrix(model); // Salva novamente a base limpa
             
             // Defasamos a órbita em 180 graus (PI radianos) somando + 3.141592f ao ângulo
-            float angulo_orbita_2 = (time * velocidade_orbita) + 3.141592f;
+            float angulo_orbita_2 = (time * velocidade_orbita) + g_EggOrbitPhaseOffset + 3.141592f;
             
-            // Aplicamos a mesma lógica de Roda Gigante para o Ovo 2
+            // Aplicamos a mesma lógica para o Ovo 2
             model = model * Matrix_Rotate_X(-angulo_orbita_2)
                           * Matrix_Translate(0.0f, raio_orbita, 0.0f)
                           * Matrix_Rotate_X(angulo_orbita_2)
-                          * Matrix_Scale(0.25f, 0.4f, 0.25f);
+                          * Matrix_Scale(g_EggScaleX, g_EggScaleY, g_EggScaleZ);
             
             glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
             glUniform1i(g_object_id_uniform, SPHERE);
