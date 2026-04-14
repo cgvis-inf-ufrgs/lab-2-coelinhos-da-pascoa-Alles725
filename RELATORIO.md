@@ -30,15 +30,23 @@
 > - Novamente, lembre-se que você *não pode utilizar ferramentas
 >   de IA para escrever este relatório*
 
-<mark>`<preencher>`</mark>
+Crie uma variável local dentro do loop de renderização que armazene o tempo decorrido glfwGetTime()
+Substitua o desenho único do coelho por um loop que imprime 16 coelhos em um cículo em torno da origem e faça eles girarem em torno da origem
+Modifique a posição Y de cada coelho para que eles subam e desçam formando um "círculo senoidal" de 4 picos
+Faça com que os rostos dos coelhos estejam apontando sempre para o centro enquanto fazem a volta
+Faça com que a cada 4 coelhos, o 4º esteja dando cambalhotas continuamente
+Transforme a esfera em um ovo utilizando Matrix_Scale 
+Remova o desenho único do ovo e coloque 2 ovos orbitando cada coelho, defasados em 180º
+Deixe os ovos estáticos e "de pé" durante toda órbita no coelho
+Ajuste os parâmetros de escala, velocidade, etc. para se assemelhar com o exemplo do professor
 
 ## Principais dificuldades encontradas durante o desenvolvimento (formato livre)
 
-<mark>`<preencher>`</mark>
+Ajustar os parâmetros para ficar com o programa o mais próximo o possível do exemplo do professor
 
 ## Você acha que conseguiu resolver o problema de forma adequada?
 
-<mark>`<preencher>`</mark>
+Sim
 
 ## Se você quiser compartilhar mais alguma coisa, coloque aqui:
 
